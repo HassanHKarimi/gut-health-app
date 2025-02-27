@@ -5,9 +5,8 @@ import RecipesPage from './pages/RecipesPage';
 import RecipeDetailPage from './pages/RecipeDetailPage';
 import IngredientsPage from './pages/IngredientsPage';
 import ScanFoodPage from './pages/ScanFoodPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
+import AuthCard from './components/auth/AuthCard';
 import { AuthProvider } from './context/AuthContext';
 import { RecipeProvider } from './context/RecipeContext';
 
@@ -29,8 +28,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Navigate to="/login" />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<AuthCard />} />
             
             {/* Protected Routes */}
             <Route 
