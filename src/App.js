@@ -1,20 +1,90 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import RecipesPage from './pages/RecipesPage';
+import RecipeDetailPage from './pages/RecipeDetailPage';
 import IngredientsPage from './pages/IngredientsPage';
 import ScanFoodPage from './pages/ScanFoodPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+import { AuthProvider } from './context/AuthContext';
+import { RecipeProvider } from './context/RecipeContext';
+
+// A protected route component to require authentication
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = localStorage.getItem('user') !== null;
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  return children;
+};
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/recipes" element={<RecipesPage />} />
-        <Route path="/ingredients" element={<IngredientsPage />} />
-        <Route path="/scan" element={<ScanFoodPage />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <RecipeProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            
+            {/* Protected Routes */}
+            <Route 
+              path="/home" 
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/recipes" 
+              element={
+                <ProtectedRoute>
+                  <RecipesPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/recipes/:id" 
+              element={
+                <ProtectedRoute>
+                  <RecipeDetailPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/ingredients" 
+              element={
+                <ProtectedRoute>
+                  <IngredientsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/scan" 
+              element={
+                <ProtectedRoute>
+                  <ScanFoodPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </Router>
+      </RecipeProvider>
+    </AuthProvider>
   );
 }
 

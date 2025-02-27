@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   const navbarStyle = {
     backgroundColor: 'white',
@@ -73,20 +75,46 @@ const Navbar = () => {
         
         {/* Desktop menu */}
         <div className="desktop-menu" style={{ display: window.innerWidth >= 768 ? 'flex' : 'none', ...menuStyle }}>
-          <Link to="/" style={linkStyle}>Home</Link>
+          <Link to="/home" style={linkStyle}>Home</Link>
           <Link to="/recipes" style={linkStyle}>Recipes</Link>
           <Link to="/ingredients" style={linkStyle}>Ingredients</Link>
           <Link to="/scan" style={linkStyle}>Scan Food</Link>
+          {user ? (
+            <>
+              <Link to="/profile" style={linkStyle}>My Profile</Link>
+              <button
+                onClick={() => logout()}
+                style={{...linkStyle, border: 'none', background: 'none', cursor: 'pointer'}}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" style={linkStyle}>Login</Link>
+          )}
         </div>
       </div>
       
       {/* Mobile menu */}
       {isMenuOpen && (
         <div style={mobileMenuStyle}>
-          <Link to="/" style={linkStyle}>Home</Link>
+          <Link to="/home" style={linkStyle}>Home</Link>
           <Link to="/recipes" style={linkStyle}>Recipes</Link>
           <Link to="/ingredients" style={linkStyle}>Ingredients</Link>
           <Link to="/scan" style={linkStyle}>Scan Food</Link>
+          {user ? (
+            <>
+              <Link to="/profile" style={linkStyle}>My Profile</Link>
+              <button
+                onClick={() => logout()}
+                style={{...linkStyle, border: 'none', background: 'none', cursor: 'pointer', textAlign: 'left', padding: 0}}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" style={linkStyle}>Login</Link>
+          )}
         </div>
       )}
     </nav>

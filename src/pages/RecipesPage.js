@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import { useAuth } from '../context/AuthContext';
+import { useRecipes } from '../context/RecipeContext';
 
 const RecipesPage = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { saveRecipe, isRecipeSaved, removeRecipe, addToGroceryList } = useRecipes();
   // Mock recipe data
   const mockRecipes = [
     {
@@ -74,6 +80,15 @@ const RecipesPage = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  
+  // Check URL for ingredient parameter
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ingredientParam = params.get('ingredient');
+    if (ingredientParam) {
+      setSearchQuery(ingredientParam);
+    }
+  }, []);
   
   const filteredRecipes = mockRecipes.filter(recipe => {
     const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -322,9 +337,65 @@ const RecipesPage = () => {
                     <span>Difficulty: {recipe.difficulty}</span>
                   </div>
                   
-                  <button style={viewButtonStyle}>
-                    View Recipe
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button 
+                      style={viewButtonStyle} 
+                      onClick={() => navigate(`/recipes/${recipe.id}`)}
+                    >
+                      View Recipe
+                    </button>
+                    
+                    {user && (
+                      <button 
+                        style={{
+                          ...viewButtonStyle,
+                          backgroundColor: isRecipeSaved(recipe.id) ? '#e53e3e' : '#4f46e5',
+                          width: 'auto',
+                          padding: '0.75rem 1rem'
+                        }}
+                        onClick={() => {
+                          if (isRecipeSaved(recipe.id)) {
+                            removeRecipe(recipe.id);
+                          } else {
+                            saveRecipe(recipe);
+                          }
+                        }}
+                      >
+                        {isRecipeSaved(recipe.id) ? 'Unsave' : 'Save'}
+                      </button>
+                    )}
+                    
+                    {user && (
+                      <button 
+                        style={{
+                          ...viewButtonStyle,
+                          backgroundColor: '#047857',
+                          width: 'auto',
+                          padding: '0.75rem 1rem'
+                        }}
+                        onClick={() => {
+                          // Convert ingredients to grocery items
+                          const groceryItems = recipe.ingredients.map(name => ({
+                            name,
+                            amount: 1,
+                            unit: 'item'
+                          }));
+                          
+                          addToGroceryList(groceryItems);
+                          alert('Ingredients added to grocery list!');
+                        }}
+                      >
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 20 20" 
+                          fill="currentColor" 
+                          style={{ width: '1.25rem', height: '1.25rem' }}
+                        >
+                          <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

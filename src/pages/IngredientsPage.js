@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import { useRecipes } from '../context/RecipeContext';
+import { useAuth } from '../context/AuthContext';
 
 const IngredientsPage = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { addToGroceryList } = useRecipes();
   // Mock ingredients data
   const mockIngredients = [
     {
@@ -461,10 +467,36 @@ const IngredientsPage = () => {
                 <div style={{ 
                   borderTop: '1px solid #eee',
                   paddingTop: '1.5rem',
-                  textAlign: 'center' 
+                  textAlign: 'center',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '1rem'
                 }}>
-                  <button style={getRecipeButtonStyle}>
+                  <button style={getRecipeButtonStyle} onClick={() => navigate(`/recipes?ingredient=${selectedIngredientData.name}`)}>
                     Find Recipes with {selectedIngredientData.name}
+                  </button>
+                  <button 
+                    style={{
+                      ...getRecipeButtonStyle,
+                      backgroundColor: 'var(--secondary)'
+                    }}
+                    onClick={() => {
+                      if (!user) {
+                        navigate('/login');
+                        return;
+                      }
+                      
+                      const ingredientItem = {
+                        name: selectedIngredientData.name,
+                        amount: 1,
+                        unit: 'item'
+                      };
+                      
+                      addToGroceryList([ingredientItem]);
+                      alert(`${selectedIngredientData.name} added to your grocery list!`);
+                    }}
+                  >
+                    Add to Grocery List
                   </button>
                 </div>
               </div>
